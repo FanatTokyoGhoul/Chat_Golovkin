@@ -45,9 +45,8 @@ static void* server_handler(void* args){
     char msg[SIZE_MSG];
 
     while (1){
-        printf("I alive %d", *userfd);
         if(recv(*userfd, msg, sizeof(msg), 0) > 0){
-            printf("Send: %d\n\n", *userfd);
+            printf("Send user: %d\nMessage: %s\n\n", *userfd, msg);
             for(int i = 0; i <= connect_users; i++){
                 if(users_sockfd[i] != *userfd){
                     send(users_sockfd[i], msg, sizeof(msg), 0);
@@ -66,6 +65,12 @@ static void* server_handler(void* args){
 
 int main(int argc, char *argv[]) {
 
+    printf("Enter ip: ");
+    char ip[17];
+    fgets(ip, sizeof(ip), stdin);
+
+    printf("ip: %s", ip);
+
 	int serv_sockfd, clie_sockfd;
 	socklen_t clilen;
 	struct sockaddr_in serv_addr, cli_addr;
@@ -76,7 +81,7 @@ int main(int argc, char *argv[]) {
 
 
 
-	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serv_addr.sin_addr.s_addr = inet_addr(ip);
 	
     serv_addr.sin_port = htons(3425);
 	if (bind(serv_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)

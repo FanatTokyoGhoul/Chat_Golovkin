@@ -19,12 +19,11 @@ void error(const char *msg) {
 static void* klient_handler(void* args){
     int* serverfd = (int*)args;
     char msg[SIZE_MSG];
-    printf("Fd: %d\n", *serverfd);
     while (1){
 
         if(recv(*serverfd, msg, sizeof(msg), 0) > 0){
             printf(msg);
-            printf("\n");
+            printf("\n\n");
             printf(print_name);
             bzero(msg, SIZE_MSG);
         }else{
@@ -39,6 +38,7 @@ int main(int argc, char *argv[]) {
     printf("Enter name: ");
     char name[100];
     fgets(name, sizeof(name), stdin);
+
 
     size_t len = strlen(name);
     if(len > 0 && name[len - 1] == '\n'){
@@ -62,7 +62,9 @@ int main(int argc, char *argv[]) {
 		error("Error");
 	
     print_name = name;
-    strncat(print_name, ": ", 5); 
+    strncat(print_name, ": ", 3); 
+
+    printf("Fd: %d\n", clie_sockfd);
 
     pthread_t tid;
     pthread_create(&tid, NULL, klient_handler, (void *)&clie_sockfd);
