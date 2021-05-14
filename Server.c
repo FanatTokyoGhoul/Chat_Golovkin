@@ -39,16 +39,17 @@ void delete_userfd(int userfd){
     connect_users--;
 }
 
-static void* server_handler(void* args){
+void* server_handler(void* args){
     int* userfd = (int*)args;
     printf("Connect: %d\n", *userfd);
     char msg[SIZE_MSG];
 
     while (1){
         if(recv(*userfd, msg, sizeof(msg), 0) > 0){
-            printf("Send user: %d\nMessage: %s\n\n", *userfd, msg);
-            for(int i = 0; i <= connect_users; i++){
+            printf("Write user: %d\n Message: %s\n", *userfd, msg);
+            for(int i = 0; i < connect_users; i++){
                 if(users_sockfd[i] != *userfd){
+                    printf("Send user: %d\n\n", users_sockfd[i], msg);
                     send(users_sockfd[i], msg, sizeof(msg), 0);
                 }
             }
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
 
 
 
-	serv_addr.sin_addr.s_addr = inet_addr(ip);
+	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	
     serv_addr.sin_port = htons(3425);
 	if (bind(serv_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
@@ -99,13 +100,17 @@ int main(int argc, char *argv[]) {
             printf("Error accept connect");
             break;
         }else{
+            users_sockfd[connect_users] = new_connect;
+            connect_users++;
             printf("Client connected!\n");
             printf("UserFD: %d\n", new_connect);
             printf("Users online: %d\n\n", connect_users);
+            printf("\n\n\n");
+            for(int i = 0; i < connect_users; i++){
+                printf("Test: %d\n",users_sockfd[i]);
+            }
             pthread_create(&pthid[connect_users], NULL, server_handler, (void *)&new_connect);
             pthread_detach(pthid[connect_users]);
-            users_sockfd[connect_users] = new_connect;
-            connect_users++;
         }
         
     }
