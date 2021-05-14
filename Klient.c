@@ -10,6 +10,7 @@
 #define SIZE_MSG 512
 
 char* print_name;
+char name[100];
 
 void error(const char *msg) {
 	perror(msg);
@@ -20,13 +21,13 @@ static void* klient_handler(void* args){
     int* serverfd = (int*)args;
     char msg[SIZE_MSG];
     while (1){
-
         if(recv(*serverfd, msg, sizeof(msg), 0) > 0){
             printf(msg);
-            printf("\n\n");
+            printf("\n");
             printf(print_name);
             bzero(msg, SIZE_MSG);
         }else{
+            printf("exit");
             exit(-1);
         }
     }
@@ -36,7 +37,6 @@ static void* klient_handler(void* args){
 int main(int argc, char *argv[]) {
 
     printf("Enter name: ");
-    char name[100];
     fgets(name, sizeof(name), stdin);
 
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	struct hostent *server;
 
 	clie_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	server = gethostbyname("127.0.0.1");
+	server = gethostbyname("192.168.43.43");
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
@@ -73,12 +73,16 @@ int main(int argc, char *argv[]) {
 
     send(clie_sockfd, name, sizeof(msg), 0);
 
+    printf(print_name);
 
     while (1){
-        printf(print_name);
         bzero(msg, SIZE_MSG);
         fgets(msg, SIZE_MSG, stdin);
-        send(clie_sockfd, msg, sizeof(msg), 0);
+        char *result = malloc(strlen(print_name) + strlen(msg) + 1);
+        strcpy(result, print_name);
+        strcpy(result, msg);
+        send(clie_sockfd, result, sizeof(msg), 0);
+        printf(print_name);
     }
     
 

@@ -41,14 +41,15 @@ void delete_userfd(int userfd){
 
 void* server_handler(void* args){
     int* userfd = (int*)args;
-    printf("Connect: %d\n", *userfd);
+    int test_userfd = *userfd;
+    printf("Connect: %d\n", test_userfd);
     char msg[SIZE_MSG];
 
     while (1){
-        if(recv(*userfd, msg, sizeof(msg), 0) > 0){
-            printf("Write user: %d\n Message: %s\n", *userfd, msg);
+        if(recv(test_userfd, msg, sizeof(msg), 0) > 0){
+            printf("Write user: %d\nMessage: %s", test_userfd, msg);
             for(int i = 0; i < connect_users; i++){
-                if(users_sockfd[i] != *userfd){
+                if(users_sockfd[i] != test_userfd){
                     printf("Send user: %d\n\n", users_sockfd[i], msg);
                     send(users_sockfd[i], msg, sizeof(msg), 0);
                 }
@@ -57,7 +58,7 @@ void* server_handler(void* args){
             bzero(msg, SIZE_MSG);
         }else{
             printf("Delete: %d\n\n");
-            delete_userfd(*userfd);
+            delete_userfd(test_userfd);
             break;
         }
     }
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
 
 
 
-	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serv_addr.sin_addr.s_addr = inet_addr(ip);
 	
     serv_addr.sin_port = htons(3425);
 	if (bind(serv_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
